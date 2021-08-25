@@ -4,7 +4,7 @@ var Message = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ['text', 'image', 'video', 'link', 'file'],
+    enum: ['text', 'image', 'notification', 'file'],
     default: 'text',
   },
   message: {
@@ -15,6 +15,11 @@ var Message = new Schema({
     required: true,
     ref: 'User'
   },
+  images: [{ type: String }],
+  file: {
+    name: String,
+    path: String,
+  },
   conversation: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -22,4 +27,4 @@ var Message = new Schema({
   }
 });
 
-const mongoose = require('mongoose')
+module.exports = mongoose.model('Message', Message)

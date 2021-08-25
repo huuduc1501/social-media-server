@@ -16,7 +16,8 @@ exports.signin = async (parent, { email, password }, context) => {
     if (!user) {
         return new Error('Không tồn tại email!')
     }
-    const isExact = user.checkPassword(password)
+    const isExact = await user.checkPassword(password)
+    console.log(isExact)
     if (isExact) {
         const token = user.getJwtToken()
         return { token }

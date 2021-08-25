@@ -2,7 +2,10 @@ const mongoose = require('mongoose')
 var Schema = mongoose.Schema;
 var Conversation = new Schema({
   type: {
-    type: String
+    type: String,
+    enum: ['group', 'single'],
+    require: true,
+    default: 'single'
   },
   owner: {
     type: Schema.Types.ObjectId,
@@ -24,3 +27,5 @@ var Conversation = new Schema({
     type: String
   }
 });
+
+module.exports = mongoose.model('Conversation', Conversation)

@@ -22,6 +22,7 @@ var User = new Schema({
   },
   password: {
     type: String,
+    // select: false,
     required: [true, 'Vui lòng nhập mật khẩu'],
     minlength: [6, "Mật khẩu ít nhất là 6 kí tự"],
     maxlength: [12, "Mật khẩu tối đa là 12 kí tự"],
@@ -80,7 +81,7 @@ var User = new Schema({
     readed: {
       type: Boolean,
       required: true,
-      default:false,
+      default: false,
     }
   }],
 },
