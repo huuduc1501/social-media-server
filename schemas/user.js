@@ -23,10 +23,19 @@ module.exports = gql`
         token:String!
     }
 
+    type Feed {
+        paging:Paging
+        posts:[Post]
+    }
+    type Paging {
+        hasMore:Boolean
+        nextCursor:String
+    }
+
     extend type Query {
         getProfile(userId:ID!) : User
         me:User
-        feed:[Post]
+        feed(cursor:String,limit:Int!):Feed
         suggestUsers:[User]
         searchUsers(searchTerm:String!):[User]
     }

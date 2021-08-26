@@ -119,14 +119,43 @@ exports.searchUsers = async (parent, { searchTerm }, context) => {
     return users
 }
 
-exports.feed = async (parent, args, context) => {
+exports.feed = async (parent, { cursor, limit }, context) => {
+    let posts = []
 
     const userIds = context.user.followings.concat([context.user._id])
-    const posts = await Post.find({ user: { $in: userIds } })
-        .sort('-createdAt')
-        .limit(50)
 
-    return posts
+    if (cursor) {
+        let time = new Date(parseInt(cursor))
+        console.log(time)
+        posts = await Post.find({
+            $and: [
+                {
+                    createdAt: {
+                        $lt: time
+                    }
+                },
+                {
+                    user: {
+                        $in: userIds
+                    }
+                }
+            ]
+        }).sort('-createdAt').limit(limit + 1)
+    }
+    else {
+        posts = await Post.find({ user: { $in: userIds } })
+            .sort('-createdAt')
+            .limit(limit + 1)
+
+    }
+
+    const hasMore = posts.length === limit + 1
+    let nextCursor = null
+    if (hasMore) {
+        nextCursor = posts.pop().createdAt
+    }
+
+    return { paging: { hasMore, nextCursor }, posts }
 }
 
 exports.suggestUsers = async (parent, args, context) => {
