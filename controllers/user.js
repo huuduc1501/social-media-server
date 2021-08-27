@@ -131,7 +131,7 @@ exports.feed = async (parent, { cursor, limit }, context) => {
             $and: [
                 {
                     createdAt: {
-                        $lt: time
+                        $lte: time
                     }
                 },
                 {
@@ -171,4 +171,18 @@ exports.authByToken = async (token) => {
     if (!user) return new Error('invalid')
 
     return user
+}
+
+// validate signup 
+
+exports.validateEmail = async (parent, { email }, context) => {
+    const user = await User.findOne({ email })
+    if (!user) return true
+    return false
+}
+
+exports.validateUsername = async (parent, { username }, context) => {
+    const user = await User.findOne({ username })
+    if (!user) return true
+    return false
 }

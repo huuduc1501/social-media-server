@@ -38,6 +38,7 @@ module.exports = gql`
         feed(cursor:String,limit:Int!):Feed
         suggestUsers:[User]
         searchUsers(searchTerm:String!):[User]
+
     }
 
     extend type Mutation {
@@ -46,6 +47,8 @@ module.exports = gql`
         follow(userId:ID!):Boolean!
         unfollow(userId:ID!):Boolean!
         editProfile(avatar:String,bio:String,fullname:String,username:String,email:String):User!
+        validateEmail(email:String!):Boolean!
+        validateUsername(username:String!):Boolean!
     }
 
 `

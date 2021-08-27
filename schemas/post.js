@@ -16,9 +16,11 @@ module.exports = gql`
         isSaved:Boolean!
     }
 
+
+
     extend type Query {
         getPost(postId:ID!):Post
-        suggestPosts:[Post]
+        suggestPosts(cursor:String,limit:Int!):Feed
     }
 
     extend type Mutation {

@@ -2,9 +2,22 @@ const Post = require('../models/Post')
 const User = require('../models/User')
 
 
-exports.suggestPosts = async (parent, args, context) => {
-    const posts = await Post.find().limit(100)
-    return posts
+exports.suggestPosts = async (parent, { cursor, limit }, context) => {
+    let posts = []
+    if (cursor) {
+        let time = new Date(parseInt(cursor))
+        posts = await Post.find({ createdAt: { $lte: time } }).sort('-createdAt').limit(limit + 1)
+    } else {
+        posts = await Post.find().sort('-createdAt').limit(limit + 1)
+    }
+
+    let nextCursor = null
+    const hasMore = posts.length === limit + 1
+    if (hasMore) {
+        nextCursor = posts.pop().createdAt
+    }
+
+    return { paging: { hasMore, nextCursor }, posts }
 }
 
 exports.createPost = async (parent, { caption, files, tags }, context) => {
