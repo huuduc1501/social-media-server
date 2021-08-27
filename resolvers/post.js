@@ -1,10 +1,11 @@
-const { createPost, getPost, deletePost, toggleLike, toggleSave, suggestPosts } = require('../controllers/post')
+const { createPost, getPost, deletePost, toggleLike, toggleSave, suggestPosts,searchPosts } = require('../controllers/post')
 
 
 module.exports = {
     Query: {
         getPost,
-        suggestPosts
+        suggestPosts,
+        searchPosts,
     },
     Mutation: {
         createPost,

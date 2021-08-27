@@ -160,7 +160,7 @@ exports.feed = async (parent, { cursor, limit }, context) => {
 
 exports.suggestUsers = async (parent, args, context) => {
     const userIds = context.user.followings.concat([context.user._id])
-    const users = await User.find({ _id: { $nin: userIds } }).limit(10)
+    const users = await User.find({ _id: { $nin: userIds } }).limit(5)
     return users
 }
 

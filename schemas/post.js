@@ -21,6 +21,7 @@ module.exports = gql`
     extend type Query {
         getPost(postId:ID!):Post
         suggestPosts(cursor:String,limit:Int!):Feed
+        searchPosts(searchTerm:String!):[Post]
     }
 
     extend type Mutation {
