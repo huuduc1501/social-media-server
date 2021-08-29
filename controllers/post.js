@@ -1,5 +1,6 @@
 const Post = require('../models/Post')
 const User = require('../models/User')
+const cloudinary = require('cloudinary').v2
 
 
 exports.suggestPosts = async (parent, { cursor, limit }, context) => {
@@ -21,7 +22,7 @@ exports.suggestPosts = async (parent, { cursor, limit }, context) => {
 }
 
 exports.createPost = async (parent, { caption, files, tags }, context) => {
-    console.log(caption, files, tags)
+    // console.log(caption, files, tags)
     if (!files || !files.length) {
         return new Error('vui lòng chọn hình ảnh')
     }
@@ -54,6 +55,16 @@ exports.deletePost = async (parent, { postId }, context) => {
     await context.user.updateOne({ $pull: { savedPosts: postId }, $inc: { postsCount: -1 } })
 
     await post.remove()
+    const publicIds = post.files.map(files => {
+        let publicId = files.split('/').pop()
+        publicId = publicId.split('.')[0]
+        return publicId
+    })
+    for (let i = 0; i < publicIds.length; i++) {
+        cloudinary.uploader.destroy(publicIds[i], function (result) {
+            console.log(result)
+        })
+    }
 
     return true
 }
@@ -78,7 +89,7 @@ exports.searchPosts = async (parent, { searchTerm }, context) => {
     if (!searchTerm) return new Error('vui lòng nhập từ khóa')
     const regex = new RegExp(searchTerm, 'i')
 
-    const posts = await Post.find({ caption: regex })
+    const posts = await Post.find({ caption: regex }).limit(10)
     return posts
 }
 

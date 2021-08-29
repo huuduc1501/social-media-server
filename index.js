@@ -2,11 +2,10 @@ require('dotenv').config()
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express')
 const mongoose = require('mongoose')
-const jwt = require('jsonwebtoken')
+const cloudinary = require('cloudinary').v2
 
 const typeDefs = require('./schemas/index')
 const resolvers = require('./resolvers/index');
-const dbMethods = require('./controllers/index')
 
 const { authByToken } = require('./controllers/user');
 
@@ -26,6 +25,14 @@ const { authByToken } = require('./controllers/user');
         process.exit(1)
     }
 })()
+
+// config cloudinary
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET,
+})
 
 const myPlugin = {
     // Fires whenever a GraphQL request is received from a client.

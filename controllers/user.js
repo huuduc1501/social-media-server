@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const Post = require('../models/Post')
+const cloudinary = require('cloudinary').v2
 
 const jwt = require('jsonwebtoken')
 
@@ -17,7 +18,6 @@ exports.signin = async (parent, { email, password }, context) => {
         return new Error('Không tồn tại email!')
     }
     const isExact = await user.checkPassword(password)
-    console.log(isExact)
     if (isExact) {
         const token = user.getJwtToken()
         return { token }
@@ -105,6 +105,16 @@ exports.editProfile = async (parent, { avatar, username, fullname, bio, email },
         runValidators: true,
     })
 
+    // if (user.avatar.toString() !== avatar) {
+    //     let publicId = user.avatar.split('/').pop()
+    //     publicId = publicId.split('.')[0]
+
+    //     cloudinary.uploader.destroy(publicId, function (result) {
+    //         console.log(result)
+    //     })
+
+    // }
+
     const user = await User.findById(context.user._id).select('-password')
 
     return user
@@ -114,7 +124,7 @@ exports.searchUsers = async (parent, { searchTerm }, context) => {
     if (!searchTerm) return new Error('vui lòng nhập tên')
 
     const regex = new RegExp(searchTerm, 'i')
-    const users = await User.find({ username: regex })
+    const users = await User.find({ username: regex }).limit(7)
 
     return users
 }
@@ -126,7 +136,6 @@ exports.feed = async (parent, { cursor, limit }, context) => {
 
     if (cursor) {
         let time = new Date(parseInt(cursor))
-        console.log(time)
         posts = await Post.find({
             $and: [
                 {
