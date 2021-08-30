@@ -8,9 +8,9 @@ module.exports = gql`
         bio:String
         email:String!
         avatar:String!
-        followersCount:String
-        followingsCount: String
-        postsCount:String
+        followersCount:Int
+        followingsCount: Int
+        postsCount:Int
         followers:[User]
         followings:[User]
         posts:[Post]
