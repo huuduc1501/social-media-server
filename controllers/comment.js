@@ -20,8 +20,6 @@ exports.addComment = async (parent, { postId, text }, context) => {
             commentsCount: 1
         }
     })
-    console.log(comment)
-
     return comment
 }
 
