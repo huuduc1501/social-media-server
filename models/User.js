@@ -95,6 +95,7 @@ User.pre('save', async function (next) {
 })
 
 User.methods.getJwtToken = function () {
+  console.log(process.env.JWT_SECRET)
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   })
