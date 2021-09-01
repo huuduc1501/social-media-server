@@ -80,6 +80,6 @@ server.applyMiddleware({ app })
 
 const port = process.env.PORT || 5000
 
-app.listen(port, () => {
-    console.log(`App listening on http://localhost:${port}${server.graphqlPath}`)
+app.listen(port, ({ url }) => {
+    console.log(`App listening on ${url + server.graphqlPath}`)
 })
