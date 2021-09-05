@@ -1,19 +1,23 @@
 const { sendMessage, deleteMessage } = require('./controllers/chat')
-const { createGroupConversation, leaveGroupConvesation, removeUser } = require('./controllers/conversation')
+const { createConversation, leaveGroupConvesation, removeUser } = require('./controllers/conversation')
 const { socketAuth } = require('./middlewares')
-const { pushSocketIdToArray, removeSocketIdInArray } = require('./util')
+const { pushSocketIdToArray, removeSocketIdInArray, emitToUser } = require('./util')
 
 module.exports = (io) => {
     io.use(socketAuth)
     io.on('connection', socket => {
+        console.log('client connect')
         pushSocketIdToArray(socket)
 
         socket.on('disconnect', () => {
+            console.log('disconnect')
             removeSocketIdInArray(socket)
         })
+
+        socket.emit('test-1', 'helo')
         // message
         socket.on('new-message', async (data) => {
-            await sendMessage(socket, data)
+            await sendMessage(io,socket, data)
         })
 
         socket.on('remove-message', async (data) => {
@@ -21,9 +25,9 @@ module.exports = (io) => {
         })
 
         // conversation
-
-        socket.on('new-group-conversation', async (data) => {
-            await createGroupConversation(socket, data)
+        emitToUser(socket.user._id, io, 'test2', 'heheh')
+        socket.on('new-conversation', (data) => {
+            createConversation(io,socket,  data)
         })
 
         socket.on('leave-group-conversation,', async data => {

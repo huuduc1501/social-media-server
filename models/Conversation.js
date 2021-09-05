@@ -13,11 +13,9 @@ var Conversation = new Schema({
     ref: 'User'
   },
   lastMessage: {
-    type: Message
+    type: Schema.Types.ObjectId,
+    ref: 'Message'
   },
-  messages: [{
-    type: Message
-  }],
   members: [{
     type: Schema.Types.ObjectId,
     required: true,
@@ -26,6 +24,10 @@ var Conversation = new Schema({
   title: {
     type: String
   }
-});
+}
+  ,
+  {
+    timestamps: true,
+  });
 
 module.exports = mongoose.model('Conversation', Conversation)

@@ -32,12 +32,18 @@ module.exports = gql`
         nextCursor:String
     }
 
+    type Conversations {
+        paging:Paging
+        conversations:[Conversation]
+    }
+
     extend type Query {
         getProfile(userId:ID!) : User
         me:User
         feed(cursor:String,limit:Int!):Feed
         suggestUsers:[User]
         searchUsers(searchTerm:String!):[User]
+        getConversations(cursor:String,limit:Int!):Conversations
 
     }
 

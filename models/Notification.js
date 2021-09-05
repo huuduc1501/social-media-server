@@ -38,4 +38,8 @@ var Notification = new Schema({
     required: true,
     ref: 'User'
   }
-});
+}
+  ,
+  {
+    timestamps: true,
+  });

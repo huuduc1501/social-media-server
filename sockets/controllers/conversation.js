@@ -2,28 +2,37 @@ const Conversation = require('../../models/Conversation')
 const User = require('../../models/User')
 const { emitToUser } = require('../util')
 
-exports.createGroupConversation = async (socket, data) => {
+exports.createConversation = async (io, socket, data) => {
+    console.log(data.members)
 
-    const members = []
-    members = data.members.map(userId => {
-        const user = await User.findById(userId)
-        if (!user || user._id === socket.user._id.toString()) return
-        return user
-    })
+    let memberList = []
+
+    for (let i = 0; i < data.members.length; i++) {
+        const user = await User.findById(data.members[i])
+        if (user) {
+
+            memberList.push(user)
+        }
+    }
+
+    memberList.push(socket.user)
+
+    console.log(memberList.map(user => user._id.toString()))
     const conversation = await Conversation.create({
+        type: data.type,
         owner: socket.user._id,
-        members: memers.map(user => user._id),
+        members: memberList.map(user => user._id),
         title: data.title
     })
 
-    members.forEach(userId => {
-        emitToUser(userId, socket, 'new-conversation', conversation)
+    memberList.forEach(user => {
+        emitToUser(user._id, io, 'new-conversation', conversation)
     })
-    await socket.user.updateOne({
-        $addToSet: { conversations: conversation._id }
-    })
-    members.map(async user => await user.updateOne({
-        $addToSet: { conversations: conversation._id }
+    // await socket.user.updateOne({
+    //     $addToSet: { conversations: conversation._id }
+    // })
+    memberList.forEach(async user => await user.updateOne({
+        $addToSet: { conversations: { conversation: conversation._id } }
     }))
     return
 }

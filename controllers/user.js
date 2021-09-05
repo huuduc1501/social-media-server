@@ -3,6 +3,8 @@ const Post = require('../models/Post')
 const cloudinary = require('cloudinary').v2
 
 const jwt = require('jsonwebtoken')
+const Conversation = require('../models/Conversation')
+const user = require('../schemas/user')
 
 exports.signup = async (parent, { email, password, fullname, username }, context) => {
 
@@ -33,6 +35,11 @@ exports.me = async (parent, args, context) => {
 
 exports.follow = async (parent, { userId }, context) => {
 
+    console.log(userId)
+    console.log(context.user.followings)
+
+    console.log(context.user.followings.includes(userId))
+
     if (!context.user.followings.includes(userId)) {
         await User.findByIdAndUpdate(userId, {
             $addToSet: {
@@ -57,6 +64,10 @@ exports.follow = async (parent, { userId }, context) => {
 }
 
 exports.unfollow = async (parent, { userId }, context) => {
+    console.log(userId)
+    console.log(context.user.followings)
+
+    console.log(context.user.followings.includes(userId))
 
     if (context.user.followings.includes(userId)) {
         await User.findByIdAndUpdate(userId, {
@@ -194,4 +205,13 @@ exports.validateUsername = async (parent, { username }, context) => {
     const user = await User.findOne({ username })
     if (!user) return true
     return false
+}
+
+
+// conversation
+
+exports.getConversations = async (parent, { cursor, limit }, context) => {
+    await context.user.populate({ path: 'conversations', populate: [{ path: 'conversation', model: 'Conversation' }] }).execPopulate()
+    const conversations = context.user.conversations.map(readedConversation => readedConversation.conversation)
+    return { paging: { hasMore: false, nextCursor: null }, conversations }
 }

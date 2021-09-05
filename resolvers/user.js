@@ -1,4 +1,16 @@
-const { signup, signin, me, follow, unfollow, getProfile, editProfile, feed, suggestUsers, searchUsers, validateEmail, validateUsername } = require('../controllers/user')
+const { signup,
+    signin,
+    me,
+    follow,
+    unfollow,
+    getProfile,
+    editProfile,
+    feed,
+    getConversations,
+    suggestUsers,
+    searchUsers,
+    validateEmail,
+    validateUsername } = require('../controllers/user')
 
 module.exports = {
     Query: {
@@ -7,6 +19,7 @@ module.exports = {
         feed,
         suggestUsers,
         searchUsers,
+        getConversations,
 
     },
     Mutation: {
@@ -40,7 +53,6 @@ module.exports = {
         },
         isFollowing: async (parent, args, context) => {
             return context.user.followings.includes(parent._id)
-        }
-
+        },
     }
 }

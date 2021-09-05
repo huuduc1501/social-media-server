@@ -1,8 +1,25 @@
 require('dotenv').config()
 const express = require('express');
+
+const app = express()
+
 const { ApolloServer } = require('apollo-server-express')
 const mongoose = require('mongoose')
 const cloudinary = require('cloudinary').v2
+const httpServer = require('http').createServer(app)
+const io = require('socket.io')(httpServer, {
+    cors: {
+        origin: '*'
+    },
+    path: '/chat',
+
+})
+
+const initSocket = require('./sockets/index')
+
+// initsocket
+initSocket(io)
+// io.listen(httpServer)
 
 const typeDefs = require('./schemas/index')
 const resolvers = require('./resolvers/index');
@@ -10,6 +27,7 @@ const resolvers = require('./resolvers/index');
 const { authByToken } = require('./controllers/user');
 
 // connect mongoDb
+console.log(process.env.MONGODB_URL);
 
 (async () => {
     try {
@@ -25,6 +43,8 @@ const { authByToken } = require('./controllers/user');
         process.exit(1)
     }
 })()
+
+
 
 // config cloudinary
 
@@ -51,12 +71,11 @@ const server = new ApolloServer({
     // plugins: [myPlugin]
 })
 
-const app = express()
 
 server.applyMiddleware({ app })
 
 const port = process.env.PORT || 5000
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`App listening on http://localhost:${port}${server.graphqlPath}`)
 })

@@ -3,26 +3,33 @@ const Message = require('../../models/Message')
 const Conversation = require('../../models/Conversation')
 const { emitToUser } = require('../util')
 
-exports.sendMessage = async (socket, data) => {
+exports.sendMessage = async (io, socket, data) => {
+    console.log('send message')
+
     const conversation = await Conversation.findById(data.conversationId)
+
     if (!conversation)
         return socket.emit('chat-error', 'không tìm thấy cuộc nói chuyện!')
     const message = await Message.create({
         sender: socket.user._id,
-        conversation: data.conversaion,
-        messages: data.message,
+        conversation: conversation._id,
+        message: data.message,
         type: data.type,
         images: data.images,
         file: data.file
     })
-    message.sender = {
-        _id: socket.user._id,
-        username: socket.user.username,
-        avatar: socket.user.avatar,
-        fullname: socket.user.fullname
+    await message.populate({ path: 'sender', select: '_id username avatar fullname' }).execPopulate()
+
+    if (!conversation.lastMessage) {
+        conversation.members.forEach(async userId => await User.findOneAndUpdate({ _id: userId }, {
+            $addToSet: { conversations: { conversation: conversation._id } }
+        }))
     }
     conversation.members.forEach(userId => {
-        emitToUser(userId, socket, `new-message:${conversation._id}`, message)
+        emitToUser(userId, io, `new-message`, message)
+    })
+    conversation.updateOne({
+        lastMessage: message._id
     })
     return
 }

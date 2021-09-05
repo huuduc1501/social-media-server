@@ -25,6 +25,9 @@ var Message = new Schema({
     required: true,
     ref: 'Conversation'
   }
-});
+},
+  {
+    timestamps: true,
+  });
 
 module.exports = mongoose.model('Message', Message)
