@@ -16,21 +16,26 @@ exports.sendMessage = async (io, socket, data) => {
         message: data.message,
         type: data.type,
         images: data.images,
-        file: data.file
+        files: data.files,
+        createdAt: data.createdAt,
     })
     await message.populate({ path: 'sender', select: '_id username avatar fullname' }).execPopulate()
+
+    conversation.members.forEach(userId => {
+        emitToUser(userId, io, `new-message`, message)
+    })
 
     if (!conversation.lastMessage) {
         conversation.members.forEach(async userId => await User.findOneAndUpdate({ _id: userId }, {
             $addToSet: { conversations: { conversation: conversation._id } }
         }))
     }
-    conversation.members.forEach(userId => {
-        emitToUser(userId, io, `new-message`, message)
-    })
-    conversation.updateOne({
+
+    await conversation.updateOne({
         lastMessage: message._id
     })
+
+
     return
 }
 

@@ -35,11 +35,6 @@ exports.me = async (parent, args, context) => {
 
 exports.follow = async (parent, { userId }, context) => {
 
-    console.log(userId)
-    console.log(context.user.followings)
-
-    console.log(context.user.followings.includes(userId))
-
     if (!context.user.followings.includes(userId)) {
         await User.findByIdAndUpdate(userId, {
             $addToSet: {
@@ -64,10 +59,6 @@ exports.follow = async (parent, { userId }, context) => {
 }
 
 exports.unfollow = async (parent, { userId }, context) => {
-    console.log(userId)
-    console.log(context.user.followings)
-
-    console.log(context.user.followings.includes(userId))
 
     if (context.user.followings.includes(userId)) {
         await User.findByIdAndUpdate(userId, {
@@ -146,7 +137,7 @@ exports.feed = async (parent, { cursor, limit }, context) => {
     const userIds = context.user.followings.concat([context.user._id])
 
     if (cursor) {
-        let time = new Date(parseInt(cursor))
+        const time = new Date(parseInt(cursor))
         posts = await Post.find({
             $and: [
                 {
@@ -185,7 +176,7 @@ exports.suggestUsers = async (parent, args, context) => {
 }
 
 exports.authByToken = async (token) => {
-    if (!token) return new Error('invalid')
+    if (!token) return null
     const decode = jwt.verify(token, process.env.JWT_SECRET)
     const user = await User.findById(decode.id)
     if (!user) return new Error('invalid')
@@ -211,7 +202,14 @@ exports.validateUsername = async (parent, { username }, context) => {
 // conversation
 
 exports.getConversations = async (parent, { cursor, limit }, context) => {
-    await context.user.populate({ path: 'conversations', populate: [{ path: 'conversation', model: 'Conversation' }] }).execPopulate()
+    await context.user.populate({
+        path: 'conversations',
+        populate: [{
+            path: 'conversation', model: 'Conversation',
+            // options: { sort: { 'updatedAt': 1 } }
+        }],
+
+    }).execPopulate()
     const conversations = context.user.conversations.map(readedConversation => readedConversation.conversation)
     return { paging: { hasMore: false, nextCursor: null }, conversations }
 }

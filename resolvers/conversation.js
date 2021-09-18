@@ -1,9 +1,11 @@
-const { getMessages, getSingleConversation } = require('../controllers/conversation')
+const { getMessages, getSingleConversation, getSpecifyConversation } = require('../controllers/conversation')
 
 module.exports = {
 
     Query: {
-        getMessages
+        getMessages,
+        getSpecifyConversation
+
     },
     Mutation: {
         getSingleConversation
@@ -15,7 +17,6 @@ module.exports = {
             const readedConversation = context.user.conversations
                 .find(rC => {
                     if (!rC.conversation) return false
-                    console.log(rC.conversation._id.toString() === parent._id.toString())
                     return rC._id.toString() === parent._id.toString()
                 })
             if (!readedConversation) return false

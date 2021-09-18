@@ -9,16 +9,31 @@ exports.getSingleConversation = async (parent, { userId }, context) => {
     if (!user) return new Error('Không tìm thấy người dùng!')
 
     let conversation = await Conversation.findOne({
-        type: 'single', member: { $size: 2, $all: [userId, context.user._id] }
+        $and: [
+            { type: 'single' },
+            { members: { $size: 2, $all: [userId, context.user._id] } }
+        ]
+        ,
     })
+    // console.log(conversation)
+    // return null
 
     if (!conversation) {
         conversation = await Conversation.create({
             type: 'single',
-            member: [userId, context.user._id],
+            members: [userId, context.user._id],
             owner: context.user._id
         })
     }
+    return conversation
+}
+
+exports.getSpecifyConversation = async (parent, { conversationId }, context) => {
+    const conversation = await Conversation.findById(conversationId)
+
+    if (!conversation) return new Error('Không tìm thấy cuộc trò chuyện!')
+
+    if (!conversation.members.includes(context.user._id)) return new Error('Không có quyền truy cập cuộc hội thoại')
     return conversation
 }
 
@@ -32,19 +47,20 @@ exports.getMessages = async (parent, { conversationId, cursor, limit }, context)
     let messages = []
 
     if (cursor) {
-        const time = new Date(cursor)
+        const time = new Date(Number(cursor))
         messages = await Message.find({
-            $and: [{
-                createdAt: {
-                    $lte: time
+            $and: [
+                {
+                    createdAt: {
+                        $lte: time
+                    },
                 },
-                conversation: conversationId
-            }]
+                { conversation: conversationId }]
         }).limit(limit + 1)
     } else {
         messages = await Message.find({
             conversation: conversationId
-        }).limit(limit + 1)
+        }).sort('-createdAt').limit(limit + 1)
     }
 
     let nextCursor = null
@@ -53,5 +69,5 @@ exports.getMessages = async (parent, { conversationId, cursor, limit }, context)
         nextCursor = messages.pop().createdAt
     }
 
-    return { paging: { hasMore, nextCursor }, messages }
+    return { paging: { hasMore, nextCursor }, messages: messages.reverse() }
 }

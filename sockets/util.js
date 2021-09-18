@@ -16,7 +16,6 @@ exports.removeSocketIdInArray = ({ user, id }) => {
 }
 
 exports.emitToUser = (userId, io, eventName, data) => {
-    console.log(userId)
     if (clients[userId]) {
         for (let i of clients[userId]) {
             io.to(i).emit(eventName, data)

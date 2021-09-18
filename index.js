@@ -7,6 +7,9 @@ const { ApolloServer } = require('apollo-server-express')
 const mongoose = require('mongoose')
 const cloudinary = require('cloudinary').v2
 const httpServer = require('http').createServer(app)
+const multer = require('multer')
+const path = require('path')
+const cors = require('cors')
 const io = require('socket.io')(httpServer, {
     cors: {
         origin: '*'
@@ -27,7 +30,6 @@ const resolvers = require('./resolvers/index');
 const { authByToken } = require('./controllers/user');
 
 // connect mongoDb
-console.log(process.env.MONGODB_URL);
 
 (async () => {
     try {
@@ -73,6 +75,42 @@ const server = new ApolloServer({
 
 
 server.applyMiddleware({ app })
+
+// upload file
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        if (file.mimetype.includes('image')) {
+            cb(null, './public/uploads/images')
+
+        } else {
+            cb(null, './public/uploads/files')
+
+        }
+    },
+    filename: (req, file, cb) => {
+        const storageFileName = `${file.fieldname}-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`
+        cb(null, storageFileName)
+    }
+})
+
+const upload = multer({ storage })
+
+// middleware and router
+
+app.use(express.json())
+app.use(cors())
+
+app.use('/public',express.static('public'))
+
+app.post('/upload', upload.fields([{ name: 'image', maxCount: 8 }, { name: 'file', maxCount: 3 }]), (req, res, next) => {
+    const response = []
+    if (req.files['image'])
+        req.files['image'].forEach(file => response.push({ path: file.path, name: file.originalname }))
+    if (req.files['file'])
+        req.files['file'].forEach(file => response.push({ path: file.path, name: file.originalname }))
+    res.send(response)
+})
 
 const port = process.env.PORT || 5000
 

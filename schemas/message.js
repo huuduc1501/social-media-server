@@ -7,10 +7,11 @@ module.exports = gql`
         message:String 
         sender:User!
         images:[String]
-        file:File 
+        files:[File] 
         conversation:Conversation
         createAt:String
         isMine:Boolean!
+        createdAt:String!
     }
 
     type File {

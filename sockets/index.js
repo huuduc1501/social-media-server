@@ -16,8 +16,8 @@ module.exports = (io) => {
 
         socket.emit('test-1', 'helo')
         // message
-        socket.on('new-message', async (data) => {
-            await sendMessage(io,socket, data)
+        socket.on('new-message',  (data) => {
+            sendMessage(io,socket, data)
         })
 
         socket.on('remove-message', async (data) => {

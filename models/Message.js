@@ -16,18 +16,21 @@ var Message = new Schema({
     ref: 'User'
   },
   images: [{ type: String }],
-  file: {
+  files: [{
     name: String,
     path: String,
-  },
+  }],
   conversation: {
     type: Schema.Types.ObjectId,
     required: true,
     ref: 'Conversation'
+  },
+  createdAt: {
+    type: Schema.Types.Date,
+    required: true,
+    default: Date.now(),
   }
 },
-  {
-    timestamps: true,
-  });
+);
 
 module.exports = mongoose.model('Message', Message)

@@ -29,6 +29,7 @@ module.exports = gql`
     extend type Query {
         getMessages(conversationId:ID!, cursor:String,limit:Int!):Messages
         getConversationMembers(cursor:String,limit:Int!): Members
+        getSpecifyConversation(conversationId:ID!):Conversation
     }
 
     extend type Mutation {
